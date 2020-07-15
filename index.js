@@ -2,14 +2,14 @@
 const path = require('path');
 const fs = require('fs');
 const gitIgnore = require('dotgitignore')();
+const clipboardy = require('clipboardy')
 
 const pwd = process.cwd();
 const dirName = path.basename(pwd);
 
 const defaultFilters = ['.git', '.gitignore'];
 
-const logDir = (name, dir, blank) => {
-  return `${name}
+const logDir = (name, dir, blank) => `${name}
 ${fs.readdirSync(path.join(pwd, dir), { withFileTypes: true })
       .filter(d => {
         if (defaultFilters.includes(d.name)) {
@@ -27,11 +27,14 @@ ${fs.readdirSync(path.join(pwd, dir), { withFileTypes: true })
       .map((dirent, index, arr) => {
         const isLast = index === arr.length - 1;
         return `${blank}${isLast ? '└' : '├'} ${dirent.isFile() ? dirent.name : logDir(dirent.name, path.join(dir, dirent.name), `${blank}${isLast ? ' ' : '│'}  `)}`;
-      }).join('\n')}`
-};
+      }).join('\n')}`;
 // logDir(dirName, '', '')
+const data = logDir(dirName, '', '');
 console.log(`
 ----------------------------------------
-${logDir(dirName, '', '')}
+${data}
 ----------------------------------------
 `);
+
+clipboardy.writeSync(data);
+console.log('[copied to clipboard already!]');
